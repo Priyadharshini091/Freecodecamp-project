@@ -1,0 +1,65 @@
+import pandas as pd
+
+
+def load_data(file_path):
+    df = pd.read_csv("c:\Users\ADMIN\Downloads\adult")
+    return df
+
+
+def demographic_data_analyzer(df):
+   
+    race_count = df['race'].value_counts()
+
+   
+    average_age_men = df.loc[df['sex'] == 'Male', 'age'].mean()
+
+    
+    percentage_bachelors = (df['education'] == 'Bachelors').mean() * 100
+
+    
+    higher_education = df['education'].isin(['Bachelors', 'Masters', 'Doctorate'])
+    higher_education_rich = (df.loc[higher_education, 'salary'] == '>50K').mean() * 100
+
+    
+    lower_education = ~higher_education
+    lower_education_rich = (df.loc[lower_education, 'salary'] == '>50K').mean() * 100
+
+    
+    min_work_hours = df['hours-per-week'].min()
+
+    
+    num_min_workers = df[df['hours-per-week'] == min_work_hours]
+    rich_percentage = (num_min_workers['salary'] == '>50K').mean() * 100
+
+    
+    highest_earning_country = (df.loc[df['salary'] == '>50K', 'native-country'].value_counts() /
+                               df['native-country'].value_counts()).idxmax()
+    highest_earning_country_percentage = (df.loc[df['salary'] == '>50K', 'native-country'].value_counts() /
+                                          df['native-country'].value_counts()).max() * 100
+
+    
+    top_IN_occupation = df.loc[(df['salary'] == '>50K') & (df['native-country'] == 'India'), 
+                               'occupation'].value_counts().idxmax()
+
+    results = {
+        'race_count': race_count.to_dict(),
+        'average_age_men': round(average_age_men, 1),
+        'percentage_bachelors': round(percentage_bachelors, 1),
+        'higher_education_rich': round(higher_education_rich, 1),
+        'lower_education_rich': round(lower_education_rich, 1),
+        'min_work_hours': min_work_hours,
+        'rich_percentage': round(rich_percentage, 1),
+        'highest_earning_country': highest_earning_country,
+        'highest_earning_country_percentage': round(highest_earning_country_percentage, 1),
+        'top_IN_occupation': top_IN_occupation
+    }
+
+    return results
+
+
+if __name__ == "__main__":
+    file_path = 'adult.csv'
+    df = load_data(file_path)
+    results = demographic_data_analyzer(df)
+    for key, value in results.items():
+        print(f"{key}: {value}")
