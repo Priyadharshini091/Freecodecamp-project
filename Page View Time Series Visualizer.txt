@@ -1,0 +1,78 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+def load_and_clean_data('C:\\Users\\ADMIN\\Downloads\\archive (1)\\page_view.csv'):
+    df = pd.read_csv('C:\\Users\\ADMIN\\Downloads\\archive (1)\\page_view.csv', index_col='date', parse_dates=True)
+    
+   
+    df = df[(df['value'] >= df['value'].quantile(0.025)) &
+            (df['value'] <= df['value'].quantile(0.975))]
+    
+    return df
+
+
+def draw_line_plot(df):
+    plt.figure(figsize=(12, 6))
+    plt.plot(df.index, df['value'], color='red', linewidth=1)
+    plt.title('Daily freeCodeCamp Forum Page Views 5/2016-12/2019')
+    plt.xlabel('Date')
+    plt.ylabel('Page Views')
+    plt.grid(True)
+    plt.show()
+
+
+def draw_bar_plot(df):
+    df['year'] = df.index.year
+    df['month'] = df.index.month_name()
+
+    
+    df_bar = df.groupby(['year', 'month'])['value'].mean().unstack()
+
+    
+    df_bar.plot(kind='bar', figsize=(12, 6))
+    plt.title('Average Daily Page Views per Month')
+    plt.xlabel('Years')
+    plt.ylabel('Average Page Views')
+    plt.legend(title='Month', bbox_to_anchor=(1.05, 1), loc='upper left')
+    plt.show()
+
+
+def draw_box_plot(df):
+    df['year'] = df.index.year
+    df['month'] = df.index.month_name()
+
+    fig, axes = plt.subplots(1, 2, figsize=(15, 6))
+
+    
+    sns.boxplot(x='year', y='value', data=df, ax=axes[0])
+    axes[0].set_title('Year-wise Box Plot (Trend)')
+    axes[0].set_xlabel('Year')
+    axes[0].set_ylabel('Page Views')
+
+    
+    month_order = ['January', 'February', 'March', 'April', 'May', 'June',
+                   'July', 'August', 'September', 'October', 'November', 'December']
+    sns.boxplot(x='month', y='value', data=df, order=month_order, ax=axes[1])
+    axes[1].set_title('Month-wise Box Plot (Seasonality)')
+    axes[1].set_xlabel('Month')
+    axes[1].set_ylabel('Page Views')
+
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == "__main__":
+   
+    file_path = 'page_view.csv'   
+    df = load_and_clean_data(file_path)
+
+    
+    print("\n✅ Drawing Line Plot...")
+    draw_line_plot(df)
+
+    print("\n✅ Drawing Bar Plot...")
+    draw_bar_plot(df)
+
+    print("\n✅ Drawing Box Plot...")
+    draw_box_plot(df)
